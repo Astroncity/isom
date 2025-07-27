@@ -27,7 +27,11 @@ void draw_tilemap(void) {
             DrawRectangle(i * 16, j * 16, 16, 16, c);
         }
     }
-    printf("total tiles: %d\n", i + j);
+    // DrawTextEx(state.font, TextFormat("This is the total # of tiles: (%d)\n", i +
+    // j), (v2){0, 0}, 32, 1, WHITE);
+
+    DrawText("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0, 0, 16, WHITE);
+    DrawTextEx(state.font, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", (v2){0, 20}, 16, 1, WHITE);
 }
 
 int main(void) {
@@ -42,7 +46,6 @@ int main(void) {
         ClearBackground(BLACK);
 
         draw_tilemap();
-        DrawFPS(0, 20);
         ecs_progress(state.world, GetFrameTime());
 
         EndTextureMode();
