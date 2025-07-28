@@ -20,17 +20,13 @@ void draw_tilemap(void) {
 
     for (i = 0; i < xTiles; i++) {
         for (j = 0; j < yTiles; j++) {
-            if ((i * 16) > state.screenWidth || (j * 16) > state.screenHeight) {
+            if ((i * 32) > state.screenWidth || (j * 32) > state.screenHeight) {
                 break;
             }
             Color c = (i + j) % 2 == 0 ? dark : light;
-            DrawRectangle(i * 16, j * 16, 16, 16, c);
+            DrawRectangle(i * 32, j * 32, 32, 32, c);
         }
     }
-    // DrawTextEx(state.font, TextFormat("This is the total # of tiles: (%d)\n", i +
-    // j), (v2){0, 0}, 32, 1, WHITE);
-
-    DrawTextEx(state.font, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", (v2){0, 20}, 10, 1, WHITE);
 }
 
 int main(void) {

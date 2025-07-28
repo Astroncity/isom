@@ -7,11 +7,11 @@ void init_engine(const char* window_title) {
     is_init = true;
 
     state.world = ecs_init();
-    state.screenWidth = 640 / 2;
-    state.screenHeight = 360 / 2;
+    state.screenWidth = 640;
+    state.screenHeight = 360;
     state.mouse = malloc(sizeof(v2));
     state.screen = init_window(window_title);
-    state.font = LoadFontEx("assets/fonts/base.fnt", 12, NULL, 0);
+    state.font = LoadFontEx("assets/fonts/munro.ttf", 24, NULL, 0);
     SetTextureFilter(state.font.texture, TEXTURE_FILTER_POINT);
 
     state.camera = (Camera2D){};
