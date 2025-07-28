@@ -1,5 +1,5 @@
-#include "state.h"
 #include "render.h"
+#include "state.h"
 
 ECS_COMPONENT_DECLARE(Renderable);
 ECS_COMPONENT_DECLARE(RenderableStatic);
@@ -14,9 +14,10 @@ ecs_entity_t PostCamera;
 static void render(ecs_iter_t* it) {
 
     const Renderable* s = ecs_field(it, Renderable, 0);
+    const Position* p = ecs_field(it, Position, 1);
 
     for (int i = 0; i < it->count; i++) {
-        s[i].render(it->entities[i]);
+        s[i].render(it->entities[i], &p[i]);
     }
 }
 
@@ -58,10 +59,7 @@ void RendererImport(ecs_world_t* world) {
         {.entity = ecs_entity(world,
                               {.name = "render_s", // Name of the system
                                .add = ecs_ids(ecs_dependson(OnCamera))}),
-         .query.terms =
-             {
-                 {.id = ecs_id(Renderable)} // Filter for entities with Renderable
-             },
+         .query.terms = {{.id = ecs_id(Renderable)}, {.id = ecs_id(Position)}},
          .callback = render,
          .query.order_by = ecs_id(Renderable),
          .query.order_by_callback = compare});
@@ -71,11 +69,7 @@ void RendererImport(ecs_world_t* world) {
         {.entity = ecs_entity(world,
                               {.name = "RenderStaticSystem", // Name of the system
                                .add = ecs_ids(ecs_dependson(PostCamera))}),
-         .query.terms =
-             {
-                 {.id = ecs_id(
-                      RenderableStatic)} // Filter for entities with Renderable
-             },
+         .query.terms = {{.id = ecs_id(RenderableStatic)}, {.id = ecs_id(Position)}},
          .callback = render,
          .query.order_by = ecs_id(RenderableStatic),
          .query.order_by_callback = compare});
