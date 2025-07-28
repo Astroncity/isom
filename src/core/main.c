@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 Color dark, light;
-Texture2D grass;
+Texture2D grass, wallF, wallR, wallL;
 
 Color hex_to_cl(u32 hex) {
     return (Color){hex >> 16 & 0xFF, hex >> 8 & 0xFF, hex & 0xFF, 255};
@@ -18,6 +18,21 @@ i32 round_to_nearest(i32 value, i32 multiple) {
     if (multiple == 0) return value;
 
     return ((value + multiple / 2) / multiple) * multiple;
+}
+
+void draw_walls(void) {
+    for (i32 i = 0; i < 20; i++) {
+        DrawTexture(wallF, i * 32, 0, WHITE);
+    }
+    i32 sides = 360 / 32;
+    for (i32 i = 0; i < sides; i++) {
+        DrawTexture(wallR, 0, i * 32, WHITE);
+        DrawTexture(wallL, 640 - 32, i * 32, WHITE);
+    }
+
+    for (i32 i = 0; i < 20; i++) {
+        DrawTexture(wallF, i * 32, 360 - 32, WHITE);
+    }
 }
 
 void draw_tilemap(void) {
@@ -56,6 +71,9 @@ int main(void) {
     light = hex_to_cl(0x202E37);
     createPlayer();
     grass = LoadTexture("assets/images/grass1.png");
+    wallF = LoadTexture("assets/images/wall_front.png");
+    wallR = LoadTexture("assets/images/wall_side_right.png");
+    wallL = LoadTexture("assets/images/wall_side_left.png");
 
     while (!WindowShouldClose()) {
         update_mouse();
@@ -63,7 +81,8 @@ int main(void) {
         BeginTextureMode(*state.screen);
         ClearBackground(BLACK);
 
-        draw_tilemap();
+        // draw_tilemap();
+        draw_walls();
         ecs_progress(state.world, GetFrameTime());
 
         EndTextureMode();
