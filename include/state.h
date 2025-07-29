@@ -12,7 +12,9 @@ typedef struct State {
     u32 screenHeight;
     v2* mouse;
     RenderTexture2D* screen;
-	Camera2D camera;
+    Camera2D camera;
+    bool placing_tower;
+    i32 money;
 } State;
 
 extern State state;

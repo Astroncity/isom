@@ -1,38 +1,35 @@
-#include "flecs.h"
-#include "player.h"
+#include "laser_turret.h"
 #include "render.h"
 #include "state.h"
+#include "tower.h"
+#include "track.h"
 #include "transform.h"
-#include "window.h"
-#include <raylib.h>
-#include <stdio.h>
 
 Color dark, light;
 Texture2D grass, wallF, wallR, wallL;
+
+Tower* towers[MAX_TOWERS];
+usize global_tower_count;
 
 Color hex_to_cl(u32 hex) {
     return (Color){hex >> 16 & 0xFF, hex >> 8 & 0xFF, hex & 0xFF, 255};
 }
 
-i32 round_to_nearest(i32 value, i32 multiple) {
-    if (multiple == 0) return value;
+i32 round_to_nearest(i32 val, i32 multiple) {
+    if (multiple == 0) return val;
 
-    return ((value + multiple / 2) / multiple) * multiple;
+    return ((val + multiple / 2) / multiple) * multiple;
 }
 
-void draw_walls(void) {
-    for (i32 i = 0; i < 20; i++) {
-        DrawTexture(wallF, i * 32, 0, WHITE);
-    }
-    i32 sides = 360 / 32;
-    for (i32 i = 0; i < sides; i++) {
-        DrawTexture(wallR, 0, i * 32, WHITE);
-        DrawTexture(wallL, 640 - 32, i * 32, WHITE);
-    }
+i32 round_up_to_nearest(i32 val, i32 n) {
+    if (n == 0) return val;
 
-    for (i32 i = 0; i < 20; i++) {
-        DrawTexture(wallF, i * 32, 360 - 32, WHITE);
-    }
+    return ((val + n - 1) / n) * n;
+}
+i32 round_down_to_nearest(i32 val, i32 n) {
+    if (n == 0) return val;
+
+    return (val / n) * n;
 }
 
 void draw_tilemap(void) {
@@ -40,11 +37,6 @@ void draw_tilemap(void) {
     u32 yTiles = 20;
 
     u32 i, j = 0;
-    bool tile_selected = false;
-    v2 plr_pos = playerPos();
-    plr_pos.x = round_to_nearest(plr_pos.x, 32);
-    plr_pos.y = round_to_nearest(plr_pos.y, 32);
-    Rect plr = {plr_pos.x, plr_pos.y, 17, 30};
 
     for (i = 0; i < xTiles; i++) {
         for (j = 0; j < yTiles; j++) {
@@ -56,9 +48,8 @@ void draw_tilemap(void) {
             Color c = WHITE;
             Rect r = {x, y, 32, 32};
 
-            if (!tile_selected && CheckCollisionRecs(r, plr)) {
+            if (CheckCollisionPointRec(*state.mouse, r)) {
                 c = (Color){200, 200, 200, 255};
-                tile_selected = true;
             }
             DrawTexture(grass, x, y, c);
         }
@@ -69,11 +60,12 @@ int main(void) {
     init_engine("Engine Template");
     dark = hex_to_cl(0x819796);
     light = hex_to_cl(0x202E37);
-    createPlayer();
     grass = LoadTexture("assets/images/grass1.png");
     wallF = LoadTexture("assets/images/wall_front.png");
     wallR = LoadTexture("assets/images/wall_side_right.png");
     wallL = LoadTexture("assets/images/wall_side_left.png");
+
+    Track test = defaultTrack();
 
     while (!WindowShouldClose()) {
         update_mouse();
@@ -81,8 +73,14 @@ int main(void) {
         BeginTextureMode(*state.screen);
         ClearBackground(BLACK);
 
-        // draw_tilemap();
-        draw_walls();
+        if (IsMouseButtonPressed(0)) {
+            v2 pos = {round_down_to_nearest(state.mouse->x, 32),
+                      round_down_to_nearest(state.mouse->y, 32)};
+            spawnLaserTurret(pos);
+        }
+
+        draw_tilemap();
+        renderTrack(&test);
         ecs_progress(state.world, GetFrameTime());
 
         EndTextureMode();
